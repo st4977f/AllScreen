@@ -18,35 +18,47 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  /* background: #f5f7fa; */
+  min-height: 100vh;
 }
 
 /* Head / Toolbar styles */
 
 .toolbar {
-  padding: 12px;
-  background:  #e9ecef;
+  width: 100%;
+  padding: 12px 4vw;
+  background: #e9ecef;
   display: flex;
   align-items: center;
   border-bottom: 1px solid #d1d5db;
+  gap: 2vw;
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 /* Inner Toolbar elements */
 .toolbar-left {
   display: flex;
   align-items: center;
-  padding-right: 8px;
+  padding-right: 2vw;
+  min-width: 0;
+  height: 40px; /* Match input height for vertical alignment */
 }
 
 .url-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1 1 0;      /* Allow to grow and fill space */
+  min-width: 120px;
+  height: 40px;
+  max-width: none;  /* Remove previous max-width */
 }
 
 .browser-icon-inside {
   position: absolute;
   left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -54,13 +66,15 @@
 }
 
 .url-input {
-  width: 400px;
+  width: 100%;
+  min-width: 80px;
+  height: 40px;
   padding: 5px;
-  padding-left: 40px; /* Make space for the icon */
-  font-size: 16px;
+  padding-left: 40px;
+  font-size: 1rem;
   border-radius: 50px;
   border: 1px solid #ccc;
-  
+  box-sizing: border-box;
 }
 
 button {
@@ -76,6 +90,36 @@ button:hover {
   background-color: var(--vscode-button-hoverBackground);
 }
 
+@media (max-width: 600px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 8px 2vw;
+  }
+  .toolbar-left {
+    justify-content: center;
+    padding-right: 0;
+    height: 40px;
+  }
+  .url-input-wrapper {
+    max-width: 100%;
+    height: 40px;
+  }
+}
+
+.viewports-row {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+  justify-content: center;
+  overflow: hidden; /* Prevent scrolling */
+  padding-top: 8px; /* Add space at the top */
+  box-sizing: border-box;
+}
+
 .viewport {
   background: #fff;
   border-radius: 8px;
@@ -84,18 +128,8 @@ button:hover {
   flex-direction: column;
   align-items: center;
   padding: 8px;
+  flex: none; /* Prevent stretching */
 }
-
-.viewports-row {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  overflow-x: auto;
-  padding: 24px;
-  gap: 24px;
-  align-items: flex-start;
-}
-
 
 .viewport-header {
   display: flex;

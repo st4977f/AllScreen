@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
 import './App.css';
-import { IoBrowsersOutline, IoGlobeOutline, IoRefresh } from 'react-icons/io5'; 
+import React, { useState, useRef, useLayoutEffect } from 'react';
+import { IoGlobeOutline, IoRefresh } from 'react-icons/io5'; 
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
-
-
+import { getAdaptiveScale } from './utils/scaling';
 
 const DEVICES = [
   { name: 'iPhone 12 Pro', width: 390, height: 844 },
@@ -11,10 +10,28 @@ const DEVICES = [
   { name: 'MacBook Pro', width: 1440, height: 900 },
 ];
 
-const SCALE = 0.5;
-
 export default function App() {
   const [url, setUrl] = useState('https://example.com');
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    function handleResize() {
+      if (!rowRef.current) return;
+      const GAP = 24;
+      const totalDeviceWidth = DEVICES.reduce((sum, d) => sum + d.width, 0) + GAP * (DEVICES.length - 1);
+      const availableWidth = rowRef.current.offsetWidth;
+      const availableHeight = window.innerHeight - rowRef.current.getBoundingClientRect().top - 48;
+      const maxDeviceHeight = Math.max(...DEVICES.map(d => d.height));
+      const scaleW = availableWidth / totalDeviceWidth;
+      const scaleH = availableHeight / maxDeviceHeight;
+      const adaptiveScale = getAdaptiveScale(window.innerWidth);
+      setScale(Math.min(scaleW, scaleH, adaptiveScale));
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="app-container">
@@ -32,7 +49,7 @@ export default function App() {
         </div>
         <div className="url-input-wrapper">
           <span className="browser-icon-inside">
-            <IoGlobeOutline  size={18} color="#64748b" />
+            <IoGlobeOutline size={18} color="#64748b" />
           </span>
           <input
             className="url-input"
@@ -42,14 +59,15 @@ export default function App() {
           />
         </div>
       </div>
-      <div className="viewports-row">
+      <div className="viewports-row" ref={rowRef}>
         {DEVICES.map(device => (
           <div
             key={device.name}
             className="viewport"
             style={{
-              width: device.width * SCALE + 24, // add some padding
-              height: device.height * SCALE + 40, // header + padding
+              width: device.width * scale,
+              height: device.height * scale + 40, // header
+              flex: 'none',
             }}
           >
             <div className="viewport-header">
@@ -58,12 +76,8 @@ export default function App() {
             <div
               className="iframe-wrapper"
               style={{
-                width: device.width * SCALE,
-                height: device.height * SCALE,
-                overflow: 'hidden',
-                borderRadius: 6,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                background: '#fff',
+                width: device.width * scale,
+                height: device.height * scale,
               }}
             >
               <iframe
@@ -72,11 +86,11 @@ export default function App() {
                 width={device.width}
                 height={device.height}
                 style={{
-                  transform: `scale(${SCALE})`,
+                  transform: `scale(${scale})`,
                   transformOrigin: 'top left',
-                  border: '1px solid #ccc',
                   width: device.width,
                   height: device.height,
+                  border: '1px solid #ccc',
                   background: '#fff',
                   pointerEvents: 'auto',
                   display: 'block',
